@@ -1,5 +1,5 @@
 import { NativeModules } from 'react-native';
 
-const { RnZebraPrinterBluetooth } = NativeModules;
+const { RNZebraBluetoothPrinter } = NativeModules;
 
-export default RnZebraPrinterBluetooth;
+export default RNZebraBluetoothPrinter;
