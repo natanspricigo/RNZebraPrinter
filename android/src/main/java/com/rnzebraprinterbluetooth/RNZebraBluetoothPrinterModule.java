@@ -431,7 +431,6 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
     if (!connection.isConnected()){
       try {
         connection.setMaxTimeoutForRead(5000);
-        connection.waitForData(5000);
         connection.open();
       }catch (ConnectionException e) {
         promise.reject(e.getMessage());
