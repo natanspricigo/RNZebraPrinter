@@ -369,10 +369,10 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
   public void connectDevice(String address,final Promise promise) {
     BluetoothAdapter adapter = this.bluetoothManager.getAdapter();
     if (adapter != null && adapter.isEnabled()) {
-      connection = new BluetoothConnection(address);
       BluetoothDevice device = adapter.getRemoteDevice(address);
       promiseMap.put(PROMISE_CONNECT, promise);
       mService.connect(device);
+      sleep(500);
       promise.resolve(mService.getState());
     } else {
       promise.reject("BT NOT ENABLED");
@@ -426,12 +426,12 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
     boolean loading = true;
     sleep(500);
     if (connection == null){
-      promise.resolve("NOT_CONNECTION");
       connection = new BluetoothConnection(device);
     }
-
     if (!connection.isConnected()){
       try {
+        connection.setMaxTimeoutForRead(5000);
+        connection.waitForData(5000);
         connection.open();
       }catch (ConnectionException e) {
         promise.reject(e.getMessage());
@@ -453,7 +453,6 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
         success = true;
         loading = false;
         promise.resolve(success);
-
       } catch (Exception err) {
         success = false;
         loading = false;
