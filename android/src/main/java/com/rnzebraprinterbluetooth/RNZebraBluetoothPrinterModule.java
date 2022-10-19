@@ -1,4 +1,3 @@
-
 package com.rnzebraprinterbluetooth;
 
 import com.facebook.react.bridge.Callback;
@@ -370,10 +369,11 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
   public void connectDevice(String address,final Promise promise) {
     BluetoothAdapter adapter = this.bluetoothManager.getAdapter();
     if (adapter != null && adapter.isEnabled()) {
+      connection = new BluetoothConnection(address);
       BluetoothDevice device = adapter.getRemoteDevice(address);
       promiseMap.put(PROMISE_CONNECT, promise);
       mService.connect(device);
-      connection = new BluetoothConnection(address);
+      promise.resolve(mService.getState());
     } else {
       promise.reject("BT NOT ENABLED");
     }
@@ -421,10 +421,23 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
   }
 
   @ReactMethod
-  public void print(String device, String label,final Promise promise) {            //print functionality for zebra printer
+  public void print(String device, String label,final Promise promise)  {            //print functionality for zebra printer
     boolean success = false;
     boolean loading = true;
     sleep(500);
+    if (connection == null){
+      promise.resolve("NOT_CONNECTION");
+      connection = new BluetoothConnection(device);
+    }
+
+    if (!connection.isConnected()){
+      try {
+        connection.open();
+      }catch (ConnectionException e) {
+        promise.reject(e.getMessage());
+      }
+    }
+
     if (connection != null && connection.isConnected()) {
       try {
         Log.d("Connection estd", "here");
@@ -439,7 +452,7 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
         sleep(1500);
         success = true;
         loading = false;
-       promise.resolve(success);
+        promise.resolve(success);
 
       } catch (Exception err) {
         success = false;
@@ -450,7 +463,7 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
         disconnect();
       }
     }
-
+    promise.resolve("NOT_CONNECTED");
   }
   @Override
     public void onBluetoothServiceStateChanged(int state, Map<String, Object> bundle) {
