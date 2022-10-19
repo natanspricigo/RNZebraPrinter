@@ -1,6 +1,8 @@
 package com.rnzebraprinterbluetooth;
 
 import com.facebook.react.bridge.Callback;
+
+import android.os.Looper;
 import android.widget.Toast;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -40,6 +42,7 @@ import androidx.core.content.ContextCompat;
 
 import com.rnzebraprinterbluetooth.BluetoothServiceStateObserver;
 import com.zebra.sdk.comm.BluetoothConnection;                                  // using zebra sdk for print functionality
+import com.zebra.sdk.comm.BluetoothConnectionInsecure;
 import com.zebra.sdk.comm.Connection;
 import com.zebra.sdk.printer.PrinterStatus;
 import com.zebra.sdk.comm.ConnectionException;
@@ -390,6 +393,7 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
   public void disconnect() {
     try {
       if (connection != null) {
+        Looper.myLooper().quit();
         connection.close();
       }
 
@@ -424,13 +428,12 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
   public void print(String device, String label,final Promise promise)  {            //print functionality for zebra printer
     boolean success = false;
     boolean loading = true;
-    sleep(500);
-    if (connection == null){
-      connection = new BluetoothConnection(device);
-    }
     if (!connection.isConnected()){
       try {
-        connection.setMaxTimeoutForRead(5000);
+        connection = new BluetoothConnectionInsecure(device);
+        Looper.prepare();
+
+        // Open the connection - physical connection is established here.
         connection.open();
       }catch (ConnectionException e) {
         promise.reject(e.getMessage());
@@ -448,7 +451,7 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
 
         byte[] configLabel = getConfigLabel(zebraPrinter, label);
         connection.write(configLabel);
-        sleep(1500);
+        sleep(500);
         success = true;
         loading = false;
         promise.resolve(success);
