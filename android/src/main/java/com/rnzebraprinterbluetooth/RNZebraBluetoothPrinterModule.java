@@ -374,11 +374,6 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
       promiseMap.put(PROMISE_CONNECT, promise);
       mService.connect(device);
       connection = new BluetoothConnection(address);
-      try {
-        connection.open();
-      }catch (ConnectionException e){
-        promise.reject(e.getMessage());
-      }
     } else {
       promise.reject("BT NOT ENABLED");
     }
@@ -428,19 +423,9 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
   @ReactMethod
   public void print(String device, String label,final Promise promise) {            //print functionality for zebra printer
     boolean success = false;
-    boolean loading = false;
+    boolean loading = true;
     sleep(500);
-    try {
-      loading = true;
-      connection.open();
-    } catch (ConnectionException e) {
-      disconnect();
-      Log.d("Connection err", e.toString());
-      loading = false;
-      success = false;
-      promise.reject("Unable to establish connection.Please try again!!!" + e.toString());
-    }
-    if (connection.isConnected()) {
+    if (connection != null && connection.isConnected()) {
       try {
         Log.d("Connection estd", "here");
 
