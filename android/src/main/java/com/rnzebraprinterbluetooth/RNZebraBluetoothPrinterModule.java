@@ -409,6 +409,7 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
       SGD.SET("device.languages", "zpl", connection);
       SGD.SET("media.type", "label", connection);
       SGD.SET("media.sense_mode", "bar", connection);
+      SGD.SET("zpl.label_length", "1800", connection);
 
       configLabel = printLabel.getBytes();
 
