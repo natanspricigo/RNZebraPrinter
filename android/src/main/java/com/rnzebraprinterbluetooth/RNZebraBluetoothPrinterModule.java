@@ -407,6 +407,8 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
     String printLabel = label;
     try {
       SGD.SET("device.languages", "zpl", connection);
+      SGD.SET("media.type", "label", connection);
+      SGD.SET("media.sense_mode", "bar", connection);
 
       configLabel = printLabel.getBytes();
 
