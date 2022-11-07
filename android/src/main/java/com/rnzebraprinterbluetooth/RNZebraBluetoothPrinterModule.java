@@ -41,7 +41,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.rnzebraprinterbluetooth.BluetoothServiceStateObserver;
-import com.zebra.sdk.comm.BluetoothConnection;                                  // using zebra sdk for print functionality
+import com.zebra.sdk.comm.BluetoothConnection; // using zebra sdk for print functionality
 import com.zebra.sdk.comm.BluetoothConnectionInsecure;
 import com.zebra.sdk.comm.Connection;
 import com.zebra.sdk.comm.ConnectionBuilder;
@@ -53,7 +53,8 @@ import com.zebra.sdk.printer.ZebraPrinter;
 import com.zebra.sdk.printer.ZebraPrinterFactory;
 import com.zebra.sdk.printer.discovery.DiscoveredPrinter;
 
-public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule implements ActivityEventListener, BluetoothServiceStateObserver {
+public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule
+  implements ActivityEventListener, BluetoothServiceStateObserver {
 
   private final ReactApplicationContext reactContext;
   private BluetoothAdapter bluetoothAdapter;
@@ -99,7 +100,7 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
     this.bluetoothAdapter = this.bluetoothManager.getAdapter();
   }
 
-  public RNZebraBluetoothPrinterModule(ReactApplicationContext reactContext,BluetoothService bluetoothService) {                  // Constructor
+  public RNZebraBluetoothPrinterModule(ReactApplicationContext reactContext, BluetoothService bluetoothService) { // Constructor
     super(reactContext);
     this.reactContext = reactContext;
     context = getReactApplicationContext();
@@ -128,34 +129,33 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
     return "RNZebraBluetoothPrinter";
   }
 
-  private void emitRNEvent(String event, @Nullable WritableMap params) {                                                          // emit events to JavaScript
+  private void emitRNEvent(String event, @Nullable WritableMap params) { // emit events to JavaScript
     getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(event, params);
   }
 
   @ReactMethod
   public void enableBluetooth(final Promise promise) {
-    try{
+    try {
       this.reactContext.startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), 1, null);
       promise.resolve("enabled");
-    }catch(Exception e) {
+    } catch (Exception e) {
       promise.reject(e);
-    }                                                                                       //enable bluetooth
+    } // enable bluetooth
   }
 
   @ReactMethod
-  public void isEnabledBluetooth(final Promise promise) {                                                     //check if the bluetooth is enabled or not
+  public void isEnabledBluetooth(final Promise promise) { // check if the bluetooth is enabled or not
 
     if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
       promise.resolve(false);
-    }
-    else {
+    } else {
       promise.resolve(true);
     }
   }
 
   @ReactMethod
-  public void scanDevices(final Promise promise) {                                                    //scan for unpaired devices
-    if(this.bluetoothAdapter == null || !this.bluetoothAdapter.isEnabled()) {
+  public void scanDevices(final Promise promise) { // scan for unpaired devices
+    if (this.bluetoothAdapter == null || !this.bluetoothAdapter.isEnabled()) {
       promise.reject("BT NOT ENABLED");
     } else {
       cancelDiscovery();
@@ -179,12 +179,11 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
   }
 
   @ReactMethod
-  public void disableBluetooth(final Promise promise) {                                           // disable bluetooth
-    if( bluetoothAdapter == null ) {    // bluetooth already disabled
+  public void disableBluetooth(final Promise promise) { // disable bluetooth
+    if (bluetoothAdapter == null) { // bluetooth already disabled
       promise.resolve(true);
-    }
-    else {
-      bluetoothAdapter.disable();     // disable bluetooth
+    } else {
+      bluetoothAdapter.disable(); // disable bluetooth
       promise.resolve(true);
     }
   }
@@ -201,7 +200,7 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
           String address = data.getExtras().getString(
             EXTRA_DEVICE_ADDRESS);
           // Get the BLuetoothDevice object
-          if (adapter!=null && BluetoothAdapter.checkBluetoothAddress(address)) {
+          if (adapter != null && BluetoothAdapter.checkBluetoothAddress(address)) {
             BluetoothDevice device = adapter
               .getRemoteDevice(address);
             // Attempt to connect to the device
@@ -215,8 +214,8 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
         // When the request to enable Bluetooth returns
         if (resultCode == Activity.RESULT_OK && promise != null) {
           // Bluetooth is now enabled, so set up a session
-          if(adapter!=null){
-            WritableArray pairedDeivce =Arguments.createArray();
+          if (adapter != null) {
+            WritableArray pairedDeivce = Arguments.createArray();
             Set<BluetoothDevice> boundDevices = adapter.getBondedDevices();
             for (BluetoothDevice d : boundDevices) {
               try {
@@ -225,11 +224,11 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
                 obj.put("address", d.getAddress());
                 pairedDeivce.pushString(obj.toString());
               } catch (Exception e) {
-                //ignore.
+                // ignore.
               }
             }
             promise.resolve(pairedDeivce);
-          }else{
+          } else {
             promise.resolve(null);
           }
 
@@ -253,10 +252,9 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
   @ReactMethod
   public void pairedDevices(final Promise promise) {
     this.context = getCurrentActivity();
-    if( bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
+    if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
       promise.reject("BT NOT ENABLED");
-    }
-    else {
+    } else {
       Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
       List<String> deviceName = new ArrayList<String>();
       List<String> deviceAddress = new ArrayList<String>();
@@ -264,12 +262,12 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
       try {
         WritableArray app_list = new WritableNativeArray();
         for (BluetoothDevice bt : pairedDevices) {
-          BluetoothClass bluetoothClass = bt.getBluetoothClass();    // get class of bluetooth device
+          BluetoothClass bluetoothClass = bt.getBluetoothClass(); // get class of bluetooth device
           WritableMap info = new WritableNativeMap();
           info.putString("address", bt.getAddress());
-          info.putDouble("class", bluetoothClass.getDeviceClass()); //1664
-          info.putString("name",bt.getName());
-          info.putString("type","paired");
+          info.putDouble("class", bluetoothClass.getDeviceClass()); // 1664
+          info.putString("name", bt.getName());
+          info.putString("type", "paired");
           app_list.pushMap(info);
         }
         promise.resolve(app_list);
@@ -281,23 +279,23 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
   }
 
   @ReactMethod
-  public void unpairDevice(String deviceAddress,final Promise promise) {
+  public void unpairDevice(String deviceAddress, final Promise promise) {
     BluetoothAdapter adapter = this.bluetoothManager.getAdapter();
-    if(adapter != null && adapter.isEnabled()) {
+    if (adapter != null && adapter.isEnabled()) {
       BluetoothDevice device = adapter.getRemoteDevice(deviceAddress);
       this.unpair(device);
       promise.resolve("disconnected successfully");
-    }
-    else {
+    } else {
       promise.reject("bluetooth not enabled");
     }
   }
+
   private void unpair(BluetoothDevice device) {
     try {
-      Method m = device.getClass().getMethod("removeBond",(Class []) null);
-      m.invoke(device,(Object[]) null);
+      Method m = device.getClass().getMethod("removeBond", (Class[]) null);
+      m.invoke(device, (Object[]) null);
     } catch (Exception e) {
-      Log.e(TAG,e.getMessage());
+      Log.e(TAG, e.getMessage());
     }
   }
 
@@ -370,14 +368,14 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
   }
 
   @ReactMethod
-  public void connectDevice(String address,final Promise promise) {
+  public void connectDevice(String address, final Promise promise) {
     BluetoothAdapter adapter = this.bluetoothManager.getAdapter();
     if (adapter != null && adapter.isEnabled()) {
       BluetoothDevice device = adapter.getRemoteDevice(address);
       promiseMap.put(PROMISE_CONNECT, promise);
       mService.connect(device);
       sleep(500);
-      //promise.resolve(mService.getState());
+      // promise.resolve(mService.getState());
     } else {
       promise.reject("BT NOT ENABLED");
     }
@@ -428,16 +426,12 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
   }
 
   @ReactMethod
-  public void print(String device, String label,final Promise promise)  {            //print functionality for zebra printer
+  public void print(String device, String label, final Promise promise) { // print functionality for zebra printer
     boolean success = false;
     boolean loading = false;
-    sleep(500);
-    if(connection == null){
-      connection = new BluetoothConnectionInsecure(device);
-    }
     try {
       loading = true;
-      sleep(500);
+      sleep(400);
       connection = ConnectionBuilder.build(device);
       connection.open();
     } catch (ConnectionException e) {
@@ -452,12 +446,9 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
 
         ZebraPrinter zebraPrinter = ZebraPrinterFactory.getInstance(connection);
         PrinterStatus status = zebraPrinter.getCurrentStatus();
-
-        String pl = SGD.GET("device.languages", connection);
-
         byte[] configLabel = getConfigLabel(zebraPrinter, label);
         connection.write(configLabel);
-        sleep(500);
+        sleep(300);
         success = true;
         loading = false;
         promise.resolve(success);
@@ -472,36 +463,39 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule im
     }
     promise.resolve("NOT_CONNECTED");
   }
+
   @Override
   public void onBluetoothServiceStateChanged(int state, Map<String, Object> bundle) {
-    Log.d(TAG,"on bluetoothServiceStatChange:"+state);
+    Log.d(TAG, "on bluetoothServiceStatChange:" + state);
     switch (state) {
       case BluetoothService.STATE_CONNECTED:
       case MESSAGE_DEVICE_NAME: {
         // save the connected device's name
         mConnectedDeviceName = (String) bundle.get(DEVICE_NAME);
         Promise p = promiseMap.remove(PROMISE_CONNECT);
-        if (p == null) {   Log.d(TAG,"No Promise found.");
+        if (p == null) {
+          Log.d(TAG, "No Promise found.");
           WritableMap params = Arguments.createMap();
           params.putString(DEVICE_NAME, mConnectedDeviceName);
           emitRNEvent(EVENT_CONNECTED, params);
-        } else { Log.d(TAG,"Promise Resolve.");
+        } else {
+          Log.d(TAG, "Promise Resolve.");
           p.resolve(mConnectedDeviceName);
         }
 
         break;
       }
       case MESSAGE_CONNECTION_LOST: {
-        //Connection lost should not be the connect result.
+        // Connection lost should not be the connect result.
         // Promise p = promiseMap.remove(PROMISE_CONNECT);
         // if (p == null) {
         emitRNEvent(EVENT_CONNECTION_LOST, null);
         // } else {
-        //   p.reject("Device connection was lost");
-        //}
+        // p.reject("Device connection was lost");
+        // }
         break;
       }
-      case MESSAGE_UNABLE_CONNECT: {     //无法连接设备
+      case MESSAGE_UNABLE_CONNECT: { // 无法连接设备
         Promise p = promiseMap.remove(PROMISE_CONNECT);
         if (p == null) {
           emitRNEvent(EVENT_UNABLE_CONNECT, null);
