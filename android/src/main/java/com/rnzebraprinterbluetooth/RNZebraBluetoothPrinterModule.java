@@ -407,7 +407,7 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule
       SGD.SET("device.languages", "zpl", connection);
       SGD.SET("media.type", "label", connection);
       SGD.SET("media.sense_mode", "bar", connection);
-      SGD.SET("zpl.label_length", "1800", connection);
+      //SGD.SET("zpl.label_length", "1800", connection);
 
       configLabel = printLabel.getBytes();
 
@@ -432,8 +432,10 @@ public class RNZebraBluetoothPrinterModule extends ReactContextBaseJavaModule
     try {
       loading = true;
       sleep(400);
-      connection = ConnectionBuilder.build(device);
-      connection.open();
+      if (connection == null || !connection.isConnected()) {
+        connection = ConnectionBuilder.build(device);
+        connection.open();
+      }
     } catch (ConnectionException e) {
       disconnect();
       loading = false;
